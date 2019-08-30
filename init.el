@@ -31,7 +31,7 @@ There are two things you can do about this warning:
     ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default)))
  '(package-selected-packages
    (quote
-    (elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
+    (spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
 
 (require 'use-package)
 
@@ -54,6 +54,12 @@ There are two things you can do about this warning:
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 ;; globals
 (global-linum-mode t) ;; enable line numbers globally
+(visual-line-mode)
+(global-hl-line-mode)
+
+;; spacemacs powerline
+(require 'spaceline-config)
+(spaceline-spacemacs-theme)
 
 ;; Ivy configuration
 (ivy-mode 1)
@@ -84,6 +90,49 @@ There are two things you can do about this warning:
       '((read-file-name-internal . ivy--regex-fuzzy)
         (t . ivy--regex-plus)))
 
+;; Move around windows with shift arrow
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
+
+;; No tabs
+(setq-default indent-tabs-mode nil)
+
+;; avy gotos. Quick jumps
+(require 'avy)
+(global-unset-key (kbd "C-j"))
+(global-set-key (kbd "C-j") 'avy-goto-char-timer)
+(global-set-key (kbd "M-g g") 'avy-goto-line)
+
+;; add undo tree
+(require 'undo-tree)
+(global-undo-tree-mode)
+
+;; easy buffer moves
+(require 'buffer-move)
+(global-set-key (kbd "<C-S-up>")     'buf-move-up)
+(global-set-key (kbd "<C-S-down>")   'buf-move-down)
+(global-set-key (kbd "<C-S-left>")   'buf-move-left)
+(global-set-key (kbd "<C-S-right>")  'buf-move-right)
+
+;; Symbol Navigation
+(use-package highlight-symbol
+  :ensure t
+  :config
+  (set-face-attribute 'highlight-symbol-face nil
+                      :background "default"
+                      :foreground "#FA009A")
+  (setq highlight-symbol-idle-delay 0)
+  (setq highlight-symbol-on-navigation-p t)
+  (add-hook 'prog-mode-hook #'highlight-symbol-mode)
+  (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode)
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              (local-set-key (kbd "M-n") 'highlight-symbol-next)
+              (local-set-key (kbd "M-p") 'highlight-symbol-prev)))
+  )
+
+;; fzf
+(global-set-key (kbd "C-f") 'fzf)
 
 ;; LANGUAGE MODE SETUPS
 ;; generic
@@ -150,6 +199,9 @@ In that case, insert the number."
 
 (use-package lsp-ui)
 
+;; Color parens by depth
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
 ;; Python
 (setq python-shell-interpreter "/usr/local/bin/python")
 (defun my/python-mode-hook ()
@@ -160,20 +212,36 @@ In that case, insert the number."
     :init
     (elpy-enable))
   (local-set-key (kbd "C-c f") 'elpy-goto-definition)
+  (local-set-key (kbd "M-.") 'elpy-goto-definition)
   (local-set-key (kbd "C-c F") 'elpy-goto-definition-other-window)
   )
 (add-hook 'python-mode-hook 'my/python-mode-hook)
 
 ;; Rust
+(use-package toml-mode)
+(use-package rust-mode
+  :hook (rust-mode . lsp))
 
-;; (use-package toml-mode)
+;; Add keybindings for interacting with Cargo
+(use-package cargo
+  :hook (rust-mode . cargo-minor-mode))
 
-;; (use-package rust-mode
-;;   :hook (rust-mode . lsp))
+(use-package flycheck-rust
+  :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
 
-;; ;; Add keybindings for interacting with Cargo
-;; (use-package cargo
-;;   :hook (rust-mode . cargo-minor-mode))
+;; Auto format rust
+(add-hook 'rust-mode-hook
+          (lambda ()
+            (global-set-key (kbd "C-c TAB") #'rust-format-buffer)))
 
-;; (use-package flycheck-rust
-;;   :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+(add-hook 'rust-mode-hook #'racer-mode)
+(add-hook 'racer-mode-hook #'eldoc-mode)
+(add-hook 'rust-mode-hook
+          (lambda ()
+            (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)))
+
+(require 'racer)
+(with-eval-after-load 'racer
+  (let ((map racer-mode-map))
+    (define-key map (kbd "C-c f") 'racer-find-definition)
+    (define-key map (kbd "C-c F") 'racer-find-definition-other-window)))
