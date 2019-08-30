@@ -33,8 +33,29 @@ There are two things you can do about this warning:
    (quote
     (spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
 
-(require 'use-package)
+;; Always have use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
+(require 'use-package)
+;; If startup is slow we can comment this out
+(setq use-package-always-ensure t)
+
+(defun ensure-package-installed (packages)
+  (mapcar
+   (lambda (package)
+     (if (package-installed-p package)
+	 nil
+       (if (y-or-n-p (format "Package %s is missing. Install it? " package))
+	   (package-install package)
+	 package)))
+   packages))
+
+(or (file-exists-p package-user-dir)
+        (package-refresh-contents))
+
+(ensure-package-installed package-selected-packages)
 
 ;; Use M-x describe-face to change the face under your cursor
 (custom-set-faces
@@ -58,10 +79,12 @@ There are two things you can do about this warning:
 (global-hl-line-mode)
 
 ;; spacemacs powerline
-(require 'spaceline-config)
 (spaceline-spacemacs-theme)
 
 ;; Ivy configuration
+(use-package ivy)
+(use-package counsel)
+(use-package swiper)
 (ivy-mode 1)
 (setq ivy-use-virtual-buffers t)
 (setq ivy-count-format "(%d/%d) ")
@@ -98,21 +121,23 @@ There are two things you can do about this warning:
 (setq-default indent-tabs-mode nil)
 
 ;; avy gotos. Quick jumps
-(require 'avy)
-(global-unset-key (kbd "C-j"))
-(global-set-key (kbd "C-j") 'avy-goto-char-timer)
-(global-set-key (kbd "M-g g") 'avy-goto-line)
+(use-package avy
+  :config
+  (global-unset-key (kbd "C-j"))
+  (global-set-key (kbd "C-j") 'avy-goto-char-timer)
+  (global-set-key (kbd "M-g g") 'avy-goto-line))
 
 ;; add undo tree
-(require 'undo-tree)
-(global-undo-tree-mode)
+(use-package undo-tree
+  :config (global-undo-tree-mode))
 
 ;; easy buffer moves
-(require 'buffer-move)
-(global-set-key (kbd "<C-S-up>")     'buf-move-up)
-(global-set-key (kbd "<C-S-down>")   'buf-move-down)
-(global-set-key (kbd "<C-S-left>")   'buf-move-left)
-(global-set-key (kbd "<C-S-right>")  'buf-move-right)
+(use-package buffer-move
+  :config
+  (global-set-key (kbd "<C-S-up>")     'buf-move-up)
+  (global-set-key (kbd "<C-S-down>")   'buf-move-down)
+  (global-set-key (kbd "<C-S-left>")   'buf-move-left)
+  (global-set-key (kbd "<C-S-right>")  'buf-move-right))
 
 ;; Symbol Navigation
 (use-package highlight-symbol
