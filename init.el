@@ -31,7 +31,7 @@ There are two things you can do about this warning:
     ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default)))
  '(package-selected-packages
    (quote
-    (spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
+    (modern-cpp-font-lock spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
 
 ;; Always have use-package
 (unless (package-installed-p 'use-package)
@@ -157,16 +157,20 @@ There are two things you can do about this warning:
   )
 
 ;; fzf
-(global-set-key (kbd "C-f") 'fzf)
+(global-set-key (kbd "C-f") 'fzf-git)
 
 ;; LANGUAGE MODE SETUPS
 ;; generic
 (use-package flycheck
-  :hook (prog-mode . flycheck-mode))
+  :hook (prog-mode . flycheck-mode)
+  :config (setq flycheck-check-syntax-automatically '(save mode-enable))
+  ;; the default value was '(save idle-change new-line mode-enabled)
+  )
 
 (use-package company
   :hook (prog-mode . company-mode)
   :config (setq company-tooltip-align-annotations t)
+  (setq company-dabbrev-downcase 0)
   (setq company-minimum-prefix-length 1)
   (setq company-idle-delay 0.1)
   (company-quickhelp-mode 1)
@@ -270,3 +274,6 @@ In that case, insert the number."
   (let ((map racer-mode-map))
     (define-key map (kbd "C-c f") 'racer-find-definition)
     (define-key map (kbd "C-c F") 'racer-find-definition-other-window)))
+
+(require 'modern-cpp-font-lock)
+(modern-c++-font-lock-global-mode t)
