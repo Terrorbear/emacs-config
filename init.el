@@ -68,7 +68,7 @@ There are two things you can do about this warning:
  '(font-lock-comment-delimiter-face ((t (:foreground "#badfdb" :slant italic))))
  '(font-lock-comment-face ((t (:foreground "#badfdb" :slant italic))))
  '(font-lock-function-name-face ((t (:foreground "#ff8a5c"))))
- '(font-lock-keyword-face ((t (:foreground "#49beb7"))))
+ '(font-lock-keyword-face ((t (:foreground "#a82037"))))
  '(font-lock-string-face ((t (:foreground "#d1eecc")))))
 
 ;; Generic Configuration
@@ -146,7 +146,7 @@ There are two things you can do about this warning:
   (set-face-attribute 'highlight-symbol-face nil
                       :background "default"
                       :foreground "#FA009A")
-  (setq highlight-symbol-idle-delay 0)
+  (setq highlight-symbol-idle-delay 0.1)
   (setq highlight-symbol-on-navigation-p t)
   (add-hook 'prog-mode-hook #'highlight-symbol-mode)
   (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode)
