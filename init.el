@@ -31,7 +31,7 @@ There are two things you can do about this warning:
     ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default)))
  '(package-selected-packages
    (quote
-    (modern-cpp-font-lock spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
+    (irony modern-cpp-font-lock counsel-etags spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
 
 ;; Always have use-package
 (unless (package-installed-p 'use-package)
@@ -221,6 +221,7 @@ In that case, insert the number."
 ;; Use LSP
 (use-package lsp-mode
   :commands lsp
+  :hook (prog-mode . lsp)
   :config (require 'lsp-clients))
 ;; For now we set lsp-enable-snippit to false because I don't find yasnippet necessary
 ;; We may re-explore this in the future.
@@ -275,5 +276,6 @@ In that case, insert the number."
     (define-key map (kbd "C-c f") 'racer-find-definition)
     (define-key map (kbd "C-c F") 'racer-find-definition-other-window)))
 
+;; C++
 (require 'modern-cpp-font-lock)
 (modern-c++-font-lock-global-mode t)
