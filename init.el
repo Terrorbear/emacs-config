@@ -31,7 +31,7 @@ There are two things you can do about this warning:
     ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default)))
  '(package-selected-packages
    (quote
-    (irony modern-cpp-font-lock counsel-etags spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
+    (use-package irony modern-cpp-font-lock counsel-etags spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
 
 ;; Always have use-package
 (unless (package-installed-p 'use-package)
@@ -69,7 +69,8 @@ There are two things you can do about this warning:
  '(font-lock-comment-face ((t (:foreground "#badfdb" :slant italic))))
  '(font-lock-function-name-face ((t (:foreground "#ff8a5c"))))
  '(font-lock-keyword-face ((t (:foreground "#a82037"))))
- '(font-lock-string-face ((t (:foreground "#d1eecc")))))
+ '(font-lock-string-face ((t (:foreground "#d1eecc"))))
+ '(hl-line ((t (:inherit highlight :background "color-237")))))
 
 ;; Generic Configuration
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
