@@ -63,7 +63,7 @@ There are two things you can do about this warning:
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#121212" :foreground "#ccc9ba" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default"))))
+ '(default ((t (:inherit nil :stipple nil :background "color-234" :foreground "#ccc9ba" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default"))))
  '(font-lock-builtin-face ((t (:foreground "#b041ad"))))
  '(font-lock-comment-delimiter-face ((t (:foreground "#badfdb" :slant italic))))
  '(font-lock-comment-face ((t (:foreground "#badfdb" :slant italic))))
@@ -278,5 +278,6 @@ In that case, insert the number."
     (define-key map (kbd "C-c F") 'racer-find-definition-other-window)))
 
 ;; C++
+(setq-default c-basic-offset 4)
 (require 'modern-cpp-font-lock)
 (modern-c++-font-lock-global-mode t)
