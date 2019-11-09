@@ -18,3 +18,6 @@ What it shares with spacemacs
 1. That beautiful powerline
 2. Window moving with shift
 3. Flycheck EVERYTHING
+
+## TODO
+lsp-rust is bugged. It still uses lsp-define-stdio which is no longer used by lsp. You can just grep it and comment it out and then delete the lsp-rust.elc to regen it. I'll put in a pull request soon

@@ -29,12 +29,34 @@ There are two things you can do about this warning:
  '(custom-safe-themes
    (quote
     ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default)))
+ '(electric-pair-mode t)
  '(package-selected-packages
    (quote
-    (origami pyvenv spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
+    (origami pyvenv python-black projectile use-package irony modern-cpp-font-lock counsel-etags spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
+
+;; Always have use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
 (require 'use-package)
+;; If startup is slow we can comment this out
+(setq use-package-always-ensure t)
 
+(defun ensure-package-installed (packages)
+  (mapcar
+   (lambda (package)
+     (if (package-installed-p package)
+	 nil
+       (if (y-or-n-p (format "Package %s is missing. Install it? " package))
+	   (package-install package)
+	 package)))
+   packages))
+
+(or (file-exists-p package-user-dir)
+        (package-refresh-contents))
+
+(ensure-package-installed package-selected-packages)
 
 ;; Use M-x describe-face to change the face under your cursor
 (custom-set-faces
@@ -42,13 +64,14 @@ There are two things you can do about this warning:
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#121212" :foreground "#ccc9ba" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default"))))
+ '(default ((t (:inherit nil :stipple nil :background "color-234" :foreground "#ccc9ba" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default"))))
  '(font-lock-builtin-face ((t (:foreground "#b041ad"))))
  '(font-lock-comment-delimiter-face ((t (:foreground "#badfdb" :slant italic))))
  '(font-lock-comment-face ((t (:foreground "#badfdb" :slant italic))))
  '(font-lock-function-name-face ((t (:foreground "#ff8a5c"))))
- '(font-lock-keyword-face ((t (:foreground "#49beb7"))))
- '(font-lock-string-face ((t (:foreground "#d1eecc")))))
+ '(font-lock-keyword-face ((t (:foreground "#a82037"))))
+ '(font-lock-string-face ((t (:foreground "#d1eecc"))))
+ '(hl-line ((t (:inherit highlight :background "color-237")))))
 
 ;; Generic Configuration
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -57,11 +80,20 @@ There are two things you can do about this warning:
 (visual-line-mode)
 (global-hl-line-mode)
 
+;; Auto refresh on git branch switches
+(global-auto-revert-mode t)
+
 ;; spacemacs powerline
-(require 'spaceline-config)
 (spaceline-spacemacs-theme)
 
+;; Automatic cleanup of old buffers at midnight
+(midnight-mode t)
+(setq clean-buffer-list-delay-general 1)
+
 ;; Ivy configuration
+(use-package ivy)
+(use-package counsel)
+(use-package swiper)
 (ivy-mode 1)
 (setq ivy-use-virtual-buffers t)
 (setq ivy-count-format "(%d/%d) ")
@@ -94,25 +126,30 @@ There are two things you can do about this warning:
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
+;; Balance buffer size
+(setq window-combination-resize t)
+
 ;; No tabs
 (setq-default indent-tabs-mode nil)
 
 ;; avy gotos. Quick jumps
-(require 'avy)
-(global-unset-key (kbd "C-j"))
-(global-set-key (kbd "C-j") 'avy-goto-char-timer)
-(global-set-key (kbd "M-g g") 'avy-goto-line)
+(use-package avy
+  :config
+  (global-unset-key (kbd "C-j"))
+  (global-set-key (kbd "C-j") 'avy-goto-char-timer)
+  (global-set-key (kbd "M-g g") 'avy-goto-line))
 
 ;; add undo tree
-(require 'undo-tree)
-(global-undo-tree-mode)
+(use-package undo-tree
+  :config (global-undo-tree-mode))
 
 ;; easy buffer moves
-(require 'buffer-move)
-(global-set-key (kbd "<C-S-up>")     'buf-move-up)
-(global-set-key (kbd "<C-S-down>")   'buf-move-down)
-(global-set-key (kbd "<C-S-left>")   'buf-move-left)
-(global-set-key (kbd "<C-S-right>")  'buf-move-right)
+(use-package buffer-move
+  :config
+  (global-set-key (kbd "<C-S-up>")     'buf-move-up)
+  (global-set-key (kbd "<C-S-down>")   'buf-move-down)
+  (global-set-key (kbd "<C-S-left>")   'buf-move-left)
+  (global-set-key (kbd "<C-S-right>")  'buf-move-right))
 
 ;; A bunch copied from here
 ;; https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6874a91ea9
@@ -212,7 +249,7 @@ There are two things you can do about this warning:
   (set-face-attribute 'highlight-symbol-face nil
                       :background "default"
                       :foreground "#FA009A")
-  (setq highlight-symbol-idle-delay 0)
+  (setq highlight-symbol-idle-delay 0.1)
   (setq highlight-symbol-on-navigation-p t)
   (add-hook 'prog-mode-hook #'highlight-symbol-mode)
   (add-hook 'prog-mode-hook #'highlight-symbol-nav-mode)
@@ -223,20 +260,48 @@ There are two things you can do about this warning:
   )
 
 ;; fzf
-(global-set-key (kbd "C-f") 'fzf)
+(global-set-key (kbd "C-f") 'fzf-git)
+
+;; better backspace
+(defun backward-delete-whitespace-to-column ()
+  "delete back to the previous column of whitespace, or as much whitespace as possible,
+or just one char if that's not possible"
+  (interactive)
+  (if indent-tabs-mode
+      (call-interactively 'backward-delete-char-untabify)
+    (let ((movement (% (current-column) tab-width))
+          (p (point)))
+      (when (= movement 0) (setq movement tab-width))
+      (save-match-data
+        (if (string-match "\\w*\\(\\s-+\\)$" (buffer-substring-no-properties (- p movement) p))
+            (backward-delete-char-untabify (- (match-end 1) (match-beginning 1)))
+        (call-interactively 'backward-delete-char-untabify))))))
+
+(defun my-smart-backspace ()
+  (interactive)
+  (if (string-match "^[[:space:]]*$" (thing-at-point 'line))
+      (delete-indentation)
+    (backward-delete-char-untabify 1)))
+
+;; (global-set-key (kbd "M-DEL") 'my-smart-backspace)
+
 
 ;; LANGUAGE MODE SETUPS
 ;; generic
 (use-package flycheck
-  :hook (prog-mode . flycheck-mode))
+  :hook (prog-mode . flycheck-mode)
+  :config (setq flycheck-check-syntax-automatically '(save mode-enable))
+  ;; the default value was '(save idle-change new-line mode-enabled)
+  )
 
 (use-package company
   :hook (prog-mode . company-mode)
   :config (setq company-tooltip-align-annotations t)
+  (setq company-dabbrev-downcase 0)
   (setq company-minimum-prefix-length 1)
-  (setq company-idle-delay 0.1)
+  (setq company-idle-delay 0.5)
   (company-quickhelp-mode 1)
-  (setq company-quickhelp-delay 0.1)
+  (setq company-quickhelp-delay 0.75)
   (setq company-show-numbers t))
 
 ;; Bind numbers when company active to select
@@ -283,18 +348,27 @@ In that case, insert the number."
 ;; Use LSP
 (use-package lsp-mode
   :commands lsp
-  :config (require 'lsp-clients))
-;; For now we set lsp-enable-snippit to false because I don't find yasnippet necessary
-;; We may re-explore this in the future.
-(setq lsp-enable-snippet nil)
+  :hook (prog-mode . lsp)
+  :config (require 'lsp-clients)
+  (setq lsp-auto-guess-root t)
+  ;; For now we set lsp-enable-snippit to false because I don't find yasnippet necessary
+  ;; We may re-explore this in the future.
+  (setq lsp-enable-snippet nil)
+  )
 
 (use-package lsp-ui)
 
 ;; Color parens by depth
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
+;; Auto pair parens
+(add-hook 'prog-mode-hook #'electric-pair-mode)
+
 ;; Python
 (setq python-shell-interpreter "/usr/local/bin/python")
+(use-package python-black
+  :demand t
+  :after python)
 (defun my/python-mode-hook ()
   ;; company-jedi isn't showing documentation
   ;; (add-to-list 'company-backends 'company-jedi)
@@ -305,6 +379,7 @@ In that case, insert the number."
   (local-set-key (kbd "C-c f") 'elpy-goto-definition)
   (local-set-key (kbd "M-.") 'elpy-goto-definition)
   (local-set-key (kbd "C-c F") 'elpy-goto-definition-other-window)
+  ;; (setq python-black-on-save-mode t) ;; Don't activate just yet
   )
 (add-hook 'python-mode-hook 'my/python-mode-hook)
 
@@ -336,3 +411,8 @@ In that case, insert the number."
   (let ((map racer-mode-map))
     (define-key map (kbd "C-c f") 'racer-find-definition)
     (define-key map (kbd "C-c F") 'racer-find-definition-other-window)))
+
+;; C++
+(setq-default c-basic-offset 4)
+(require 'modern-cpp-font-lock)
+(modern-c++-font-lock-global-mode t)
