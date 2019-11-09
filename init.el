@@ -31,7 +31,7 @@ There are two things you can do about this warning:
     ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default)))
  '(package-selected-packages
    (quote
-    (spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
+    (origami pyvenv spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
 
 (require 'use-package)
 
@@ -113,6 +113,97 @@ There are two things you can do about this warning:
 (global-set-key (kbd "<C-S-down>")   'buf-move-down)
 (global-set-key (kbd "<C-S-left>")   'buf-move-left)
 (global-set-key (kbd "<C-S-right>")  'buf-move-right)
+
+;; A bunch copied from here
+;; https://gist.github.com/nilsdeppe/7645c096d93b005458d97d6874a91ea9
+
+;; Auto-wrap at 80 characters
+(setq-default auto-fill-function 'do-auto-fill)
+(setq-default fill-column 80)
+(turn-on-auto-fill)
+;; Disable auto-fill-mode in programming mode
+(add-hook 'prog-mode-hook (lambda () (auto-fill-mode -1)))
+
+;; Disable the menu bar since we don't use it, especially not in the
+;; terminal
+(when (and (not (eq system-type 'darwin)) (fboundp 'menu-bar-mode))
+  (menu-bar-mode -1))
+
+;; Don't ring the bell
+(setq ring-bell-function 'ignore)
+
+;; Non-nil means draw block cursor as wide as the glyph under it.
+;; For example, if a block cursor is over a tab, it will be drawn as
+;; wide as that tab on the display.
+(setq x-stretch-cursor t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Origami - Does code folding, ie hide the body of an
+;; if/else/for/function so that you can fit more code on your screen
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package origami
+  :ensure t
+  :commands (origami-mode)
+  :bind (:map origami-mode-map
+              ("C-c o :" . origami-recursively-toggle-node)
+              ("C-c o a" . origami-toggle-all-nodes)
+              ("C-c o t" . origami-toggle-node)
+              ("C-c o o" . origami-show-only-node)
+              ("C-c o u" . origami-undo)
+              ("C-c o U" . origami-redo)
+              ("C-c o C-r" . origami-reset)
+              )
+  :config
+  (setq origami-show-fold-header t)
+  ;; The python parser currently doesn't fold if/for/etc. blocks, which is
+  ;; something we want. However, the basic indentation parser does support
+  ;; this with one caveat: you must toggle the node when your cursor is on
+  ;; the line of the if/for/etc. statement you want to collapse. You cannot
+  ;; fold the statement by toggling in the body of the if/for/etc.
+  (add-to-list 'origami-parser-alist '(python-mode . origami-indent-parser))
+  :init
+  (add-hook 'prog-mode-hook 'origami-mode)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Beacon-mode: flash the cursor when switching buffers or scrolling
+;;              the goal is to make it easy to find the cursor
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package beacon
+  :ensure t
+  :init
+  (eval-when-compile
+    ;; Silence missing function warnings
+    (declare-function beacon-mode "beacon.el"))
+  :config
+  (beacon-mode t))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; which-key: when you pause on a keyboard shortcut it provides
+;;            suggestions in a popup buffer
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package which-key
+  :ensure t
+  :init
+  (eval-when-compile
+    ;; Silence missing function warnings
+    (declare-function which-key-mode "which-key.el"))
+  :config
+  (which-key-mode))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; RealGud - https://github.com/realgud/realgud
+;; A rewrite of GUD
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package realgud
+  :ensure t
+  :init
+  (setenv "TERM" "dumb")
+  :config
+  (setq realgud:pdb-command-name "python -m pdb"))
+
+;; Enable System Copy with Emacs Copy
+(setq x-select-enable-clipboard t)
 
 ;; Symbol Navigation
 (use-package highlight-symbol
