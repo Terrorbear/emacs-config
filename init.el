@@ -25,14 +25,12 @@ There are two things you can do about this warning:
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes (quote (sanityinc-tomorrow-night)))
+ '(custom-enabled-themes '(sanityinc-tomorrow-night))
  '(custom-safe-themes
-   (quote
-    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default)))
+   '("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" default))
  '(electric-pair-mode t)
  '(package-selected-packages
-   (quote
-    (origami pyvenv python-black projectile use-package irony modern-cpp-font-lock counsel-etags spaceline rainbow-delimiters fzf racer highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp company-lsp exec-path-from-shell lsp-rust cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))))
+   '(realgud which-key beacon origami pyvenv python-black projectile use-package irony modern-cpp-font-lock counsel-etags spaceline rainbow-delimiters fzf highlight-symbol undo-tree buffer-move avy workgroups2 zoom elpy company-quickhelp exec-path-from-shell cargo flycheck flycheck-rust lsp-mode lsp-ui rust-mode toml-mode company company-jedi magit color-theme-sanityinc-tomorrow counsel swiper ivy))) ;; racer
 
 ;; Always have use-package
 (unless (package-installed-p 'use-package)
@@ -349,8 +347,7 @@ In that case, insert the number."
 (use-package lsp-mode
   :commands lsp
   :hook (prog-mode . lsp)
-  :config (require 'lsp-clients)
-  (setq lsp-auto-guess-root t)
+  :config (setq lsp-auto-guess-root t)
   ;; For now we set lsp-enable-snippit to false because I don't find yasnippet necessary
   ;; We may re-explore this in the future.
   (setq lsp-enable-snippet nil)
@@ -400,17 +397,18 @@ In that case, insert the number."
           (lambda ()
             (global-set-key (kbd "C-c TAB") #'rust-format-buffer)))
 
-(add-hook 'rust-mode-hook #'racer-mode)
-(add-hook 'racer-mode-hook #'eldoc-mode)
-(add-hook 'rust-mode-hook
-          (lambda ()
-            (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)))
+;; Prefer LSP-rust
+;; (add-hook 'rust-mode-hook #'racer-mode)
+;; (add-hook 'racer-mode-hook #'eldoc-mode)
+;; (add-hook 'rust-mode-hook
+;;           (lambda ()
+;;             (define-key rust-mode-map (kbd "TAB") #'company-indent-or-complete-common)))
 
-(require 'racer)
-(with-eval-after-load 'racer
-  (let ((map racer-mode-map))
-    (define-key map (kbd "C-c f") 'racer-find-definition)
-    (define-key map (kbd "C-c F") 'racer-find-definition-other-window)))
+;; (require 'racer)
+;; (with-eval-after-load 'racer
+;;   (let ((map racer-mode-map))
+;;     (define-key map (kbd "C-c f") 'racer-find-definition)
+;;     (define-key map (kbd "C-c F") 'racer-find-definition-other-window)))
 
 ;; C++
 (setq-default c-basic-offset 4)
